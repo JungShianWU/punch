@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="打卡">
+<title>打卡</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f2f2f7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .time {
+    font-size: 48px;
+    font-weight: 200;
+    color: #1c1c1e;
+    margin-bottom: 8px;
+  }
+  .date {
+    font-size: 17px;
+    color: #8e8e93;
+    margin-bottom: 48px;
+  }
+  .btn {
+    width: 100%;
+    max-width: 320px;
+    padding: 18px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 14px;
+    font-size: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  .btn:active { transform: scale(0.96); }
+  .btn-in {
+    background: #34c759;
+    color: white;
+  }
+  .btn-out {
+    background: #ff3b30;
+    color: white;
+  }
+  .result {
+    margin-top: 32px;
+    padding: 20px;
+    background: white;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 320px;
+    font-size: 16px;
+    line-height: 1.8;
+    color: #1c1c1e;
+    white-space: pre-line;
+    display: none;
+  }
+  .actions {
+    margin-top: 16px;
+    display: none;
+    gap: 8px;
+    width: 100%;
+    max-width: 320px;
+  }
+  .actions button {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-line {
+    background: #06c755;
+    color: white;
+  }
+  .btn-copy {
+    background: #007aff;
+    color: white;
+  }
+</style>
+</head>
+<body>
+
+<div class="time" id="clock"></div>
+<div class="date" id="dateDisplay"></div>
+
+<button class="btn btn-in" onclick="punch('in')">上班打卡</button>
+<button class="btn btn-out" onclick="punch('out')">下班打卡</button>
+
+<div class="result" id="result"></div>
+<div class="actions" id="actions">
+  <button class="btn-line" onclick="sendLine()">傳送 LINE</button>
+  <button class="btn-copy" onclick="copyText()">拷貝</button>
+</div>
+
+<script>
+let lastResult = ''
+
+// 即時時鐘
+function tick() {
+  const now = new Date()
+  document.getElementById('clock').textContent =
+    String(now.getHours()).padStart(2,'0') + ':' +
+    String(now.getMinutes()).padStart(2,'0') + ':' +
+    String(now.getSeconds()).padStart(2,'0')
+  document.getElementById('dateDisplay').textContent =
+    now.getFullYear() + '/' +
+    String(now.getMonth()+1).padStart(2,'0') + '/' +
+    String(now.getDate()).padStart(2,'0')
+}
+tick()
+setInterval(tick, 1000)
+
+function fmt(m) {
+  return String(Math.floor(m/60)).padStart(2,'0') + ':' + String(m%60).padStart(2,'0')
+}
+
+function punch(type) {
+  const now = new Date()
+  const dateStr = String(now.getMonth()+1).padStart(2,'0') + '/' + String(now.getDate()).padStart(2,'0')
+  const timeStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0')
+
+  if (type === 'out') {
+    lastResult = '下班打卡：' + dateStr + ' ' + timeStr
+  } else {
+    const totalMin = now.getHours() * 60 + now.getMinutes()
+    const effectiveStart = Math.max(totalMin, 510)
+    const late = totalMin > 570
+
+    let clockOut
+    if (effectiveStart < 720) {
+      clockOut = 780 + 450 - (720 - effectiveStart)
+    } else if (effectiveStart < 780) {
+      clockOut = 780 + 450
+    } else {
+      clockOut = effectiveStart + 450
+    }
+
+    lastResult = '上班打卡：' + dateStr + ' ' + timeStr +
+      '\n預計下班：' + fmt(clockOut) +
+      '\n加班起算：' + fmt(clockOut + 30)
+    if (late) lastResult += '\n⚠️ 已超過彈性上班時間 09:30，視為遲到'
+  }
+
+  document.getElementById('result').textContent = lastResult
+  document.getElementById('result').style.display = 'block'
+  document.getElementById('actions').style.display = 'flex'
+}
+
+function sendLine() {
+  window.location.href = 'line://msg/text/' + encodeURIComponent(lastResult)
+}
+
+function copyText() {
+  navigator.clipboard.writeText(lastResult).then(() => {
+    const btn = document.querySelector('.btn-copy')
+    btn.textContent = '已拷貝 ✓'
+    setTimeout(() => btn.textContent = '拷貝', 1500)
+  })
+}
+</script>
+
+</body>
+</html>
