@@ -88,12 +88,62 @@
     background: #007aff;
     color: white;
   }
+  .custom-time {
+    width: 100%;
+    max-width: 320px;
+    margin-bottom: 16px;
+    background: white;
+    border-radius: 14px;
+    padding: 14px 16px;
+  }
+  .custom-time-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 16px;
+    color: #1c1c1e;
+    cursor: pointer;
+  }
+  .custom-time-header input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #007aff;
+  }
+  .custom-time-body {
+    display: none;
+    margin-top: 12px;
+    gap: 8px;
+  }
+  .custom-time-body.show {
+    display: flex;
+  }
+  .custom-time-body input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #d1d1d6;
+    border-radius: 10px;
+    font-size: 16px;
+    font-family: inherit;
+    background: #f2f2f7;
+    color: #1c1c1e;
+  }
 </style>
 </head>
 <body>
 
 <div class="time" id="clock"></div>
 <div class="date" id="dateDisplay"></div>
+
+<div class="custom-time">
+  <label class="custom-time-header">
+    <span>使用自訂時間</span>
+    <input type="checkbox" id="useCustom" onchange="toggleCustom()">
+  </label>
+  <div class="custom-time-body" id="customBody">
+    <input type="date" id="customDate">
+    <input type="time" id="customTime">
+  </div>
+</div>
 
 <button class="btn btn-in" onclick="punch('in')">上班打卡</button>
 <button class="btn btn-out" onclick="punch('out')">下班打卡</button>
@@ -126,8 +176,44 @@ function fmt(m) {
   return String(Math.floor(m/60)).padStart(2,'0') + ':' + String(m%60).padStart(2,'0')
 }
 
+function toggleCustom() {
+  const useCustom = document.getElementById('useCustom').checked
+  const body = document.getElementById('customBody')
+  body.classList.toggle('show', useCustom)
+  if (useCustom) {
+    const now = new Date()
+    const dateInput = document.getElementById('customDate')
+    const timeInput = document.getElementById('customTime')
+    if (!dateInput.value) {
+      dateInput.value = now.getFullYear() + '-' +
+        String(now.getMonth()+1).padStart(2,'0') + '-' +
+        String(now.getDate()).padStart(2,'0')
+    }
+    if (!timeInput.value) {
+      timeInput.value = String(now.getHours()).padStart(2,'0') + ':' +
+        String(now.getMinutes()).padStart(2,'0')
+    }
+  }
+}
+
+function getPunchTime() {
+  const useCustom = document.getElementById('useCustom').checked
+  if (useCustom) {
+    const dateVal = document.getElementById('customDate').value
+    const timeVal = document.getElementById('customTime').value
+    if (dateVal && timeVal) {
+      return new Date(dateVal + 'T' + timeVal)
+    }
+  }
+  return new Date()
+}
+
 function punch(type) {
-  const now = new Date()
+  const now = getPunchTime()
+  if (isNaN(now.getTime())) {
+    alert('請輸入正確的自訂時間')
+    return
+  }
   const dateStr = String(now.getMonth()+1).padStart(2,'0') + '/' + String(now.getDate()).padStart(2,'0')
   const timeStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0')
 
