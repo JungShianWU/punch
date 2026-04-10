@@ -127,9 +127,103 @@
     background: #f2f2f7;
     color: #1c1c1e;
   }
+  .help-btn {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: white;
+    color: #007aff;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    z-index: 10;
+  }
+  .help-btn:active { transform: scale(0.94); }
+  .help-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 20;
+  }
+  .help-modal.show { display: flex; }
+  .help-content {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 340px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #1c1c1e;
+  }
+  .help-content h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: #1c1c1e;
+  }
+  .help-content ul {
+    padding-left: 20px;
+    margin: 8px 0 16px;
+  }
+  .help-content li { margin-bottom: 4px; }
+  .help-close {
+    margin-top: 8px;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: #007aff;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+  }
 </style>
 </head>
 <body>
+
+<button class="help-btn" onclick="toggleHelp(true)" aria-label="說明">?</button>
+
+<div class="help-modal" id="helpModal" onclick="if(event.target===this)toggleHelp(false)">
+  <div class="help-content">
+    <h3>打卡規則說明</h3>
+    <strong>上班時間</strong>
+    <ul>
+      <li>標準上班：08:30</li>
+      <li>彈性時段：08:30 ~ 09:30</li>
+      <li>超過 09:30 視為遲到</li>
+    </ul>
+    <strong>下班計算</strong>
+    <ul>
+      <li>工時 7.5 小時 + 1 小時午休</li>
+      <li>08:30 前上班：下班固定 17:00</li>
+      <li>08:30 ~ 09:00：依上班時間往後推</li>
+      <li>09:00 後上班：上班 + 7.5 小時</li>
+      <li>加班起算：預計下班 + 30 分鐘</li>
+    </ul>
+    <strong>自訂時間</strong>
+    <ul>
+      <li>勾選後可補登或指定打卡時間</li>
+    </ul>
+    <strong>操作</strong>
+    <ul>
+      <li>傳送 LINE：開啟 LINE 分享結果</li>
+      <li>拷貝：複製結果到剪貼簿</li>
+    </ul>
+    <button class="help-close" onclick="toggleHelp(false)">關閉</button>
+  </div>
+</div>
 
 <div class="time" id="clock"></div>
 <div class="date" id="dateDisplay"></div>
@@ -174,6 +268,10 @@ setInterval(tick, 1000)
 
 function fmt(m) {
   return String(Math.floor(m/60)).padStart(2,'0') + ':' + String(m%60).padStart(2,'0')
+}
+
+function toggleHelp(show) {
+  document.getElementById('helpModal').classList.toggle('show', show)
 }
 
 function toggleCustom() {
