@@ -338,11 +338,8 @@ function punch(type) {
     const effectiveStart = Math.max(totalMin, 510)
     const late = totalMin > 570
 
-    const clockOut = computeClockOut(effectiveStart)
+    lastResult = '上班打卡：' + dateStr + ' ' + timeStr
 
-    lastResult = '上班打卡：' + dateStr + ' ' + timeStr +
-      '\n預計下班：' + fmt(clockOut) +
-      '\n加班起算：' + fmt(clockOut + 30)
     if (late) {
       const leaveBlocks = Math.ceil((totalMin - 570) / 30)
       const leaveEnd = 570 + leaveBlocks * 30
@@ -351,6 +348,10 @@ function punch(type) {
       lastResult += '\n應請假：09:30 ~ ' + fmt(leaveEnd) + '（' + (leaveBlocks * 0.5) + ' 小時）'
       lastResult += '\n請假後最早下班：' + fmt(earliestClockOut)
       lastResult += '\n請假後加班起算：' + fmt(earliestClockOut + 30)
+    } else {
+      const clockOut = computeClockOut(effectiveStart)
+      lastResult += '\n預計下班：' + fmt(clockOut) +
+        '\n加班起算：' + fmt(clockOut + 30)
     }
   }
 
