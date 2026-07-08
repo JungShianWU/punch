@@ -208,7 +208,7 @@
     <ul>
       <li>從彈性截止 09:30 起算至到班時間</li>
       <li>請假以最少半小時為單位，不足半小時以半小時計</li>
-      <li>請假涵蓋遲到時段後，視為 09:30 上班，並依 7.5 小時工時 + 1 小時午休扣除請假時數，計算最早下班與加班起算時間</li>
+      <li>請假涵蓋遲到時段後，視為 09:30 上班，依原規則（7.5 小時工時 + 1 小時午休）計算最早下班與加班起算時間</li>
     </ul>
     <strong>下班計算</strong>
     <ul>
@@ -345,9 +345,8 @@ function punch(type) {
       '\n加班起算：' + fmt(clockOut + 30)
     if (late) {
       const leaveBlocks = Math.ceil((totalMin - 570) / 30)
-      const leaveMinutes = leaveBlocks * 30
-      const leaveEnd = 570 + leaveMinutes
-      const earliestClockOut = computeClockOut(570) - leaveMinutes
+      const leaveEnd = 570 + leaveBlocks * 30
+      const earliestClockOut = computeClockOut(570)
       lastResult += '\n⚠️ 已超過彈性上班時間 09:30，視為遲到'
       lastResult += '\n應請假：09:30 ~ ' + fmt(leaveEnd) + '（' + (leaveBlocks * 0.5) + ' 小時）'
       lastResult += '\n請假後最早下班：' + fmt(earliestClockOut)
