@@ -276,6 +276,16 @@ function fmt(m) {
   return String(Math.floor(m/60)).padStart(2,'0') + ':' + String(m%60).padStart(2,'0')
 }
 
+function computeClockOut(effectiveStart) {
+  if (effectiveStart < 720) {
+    return 780 + 450 - (720 - effectiveStart)
+  } else if (effectiveStart < 780) {
+    return 780 + 450
+  } else {
+    return effectiveStart + 450
+  }
+}
+
 function toggleHelp(show) {
   document.getElementById('helpModal').classList.toggle('show', show)
 }
@@ -328,14 +338,7 @@ function punch(type) {
     const effectiveStart = Math.max(totalMin, 510)
     const late = totalMin > 570
 
-    let clockOut
-    if (effectiveStart < 720) {
-      clockOut = 780 + 450 - (720 - effectiveStart)
-    } else if (effectiveStart < 780) {
-      clockOut = 780 + 450
-    } else {
-      clockOut = effectiveStart + 450
-    }
+    const clockOut = computeClockOut(effectiveStart)
 
     lastResult = '上班打卡：' + dateStr + ' ' + timeStr +
       '\n預計下班：' + fmt(clockOut) +
