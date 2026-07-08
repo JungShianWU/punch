@@ -204,6 +204,11 @@
       <li>彈性時段：08:30 ~ 09:30</li>
       <li>超過 09:30 視為遲到</li>
     </ul>
+    <strong>遲到請假</strong>
+    <ul>
+      <li>從彈性截止 09:30 起算至到班時間</li>
+      <li>請假以最少半小時為單位，不足半小時以半小時計</li>
+    </ul>
     <strong>下班計算</strong>
     <ul>
       <li>工時 7.5 小時 + 1 小時午休</li>
@@ -334,7 +339,12 @@ function punch(type) {
     lastResult = '上班打卡：' + dateStr + ' ' + timeStr +
       '\n預計下班：' + fmt(clockOut) +
       '\n加班起算：' + fmt(clockOut + 30)
-    if (late) lastResult += '\n⚠️ 已超過彈性上班時間 09:30，視為遲到'
+    if (late) {
+      const leaveBlocks = Math.ceil((totalMin - 570) / 30)
+      const leaveEnd = 570 + leaveBlocks * 30
+      lastResult += '\n⚠️ 已超過彈性上班時間 09:30，視為遲到'
+      lastResult += '\n應請假：09:30 ~ ' + fmt(leaveEnd) + '（' + (leaveBlocks * 0.5) + ' 小時）'
+    }
   }
 
   document.getElementById('result').textContent = lastResult
